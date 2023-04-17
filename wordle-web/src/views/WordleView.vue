@@ -32,10 +32,10 @@ const game = reactive(new WordleGame())
 console.log(game.secretWord)
 
 onMounted(() => {
-  window.addEventListener('keypress', keyPress)
+  window.addEventListener('keyup', keyPress)
 })
 onUnmounted(() => {
-  window.removeEventListener('keypress', keyPress)
+  window.removeEventListener('keyup', keyPress)
 })
 
 watch(
@@ -49,7 +49,7 @@ watch(
 )
 
 function checkGuess() {
-  game.submitGuess(guess.value)
+  game.submitGuess()
   guess.value = ''
 }
 
@@ -59,12 +59,16 @@ function letterClick(letter: Letter, event: MouseEvent) {
 }
 
 function keyPress(event: KeyboardEvent) {
+  console.log(event.key)
   if (event.key === 'Enter') {
     checkGuess()
   } else if (event.key === 'Backspace') {
     guess.value = guess.value.slice(0, -1)
-  } else {
+    game.guess.pop()
+    console.log('Back')
+  } else if (event.key.length === 1 && event.key !== ' ') {
     guess.value += event.key.toLowerCase()
+    game.guess.push(event.key.toLowerCase())
   }
   //event.preventDefault()
 }
