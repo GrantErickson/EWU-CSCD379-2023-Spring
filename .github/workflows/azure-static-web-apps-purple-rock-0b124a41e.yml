@@ -29,7 +29,7 @@ jobs:
         run: npm run lint
       - name: Prettier Check
         working-directory: ./wordle-web
-        run: npm run prettier-check
+        run: npm run format-check
       - name: Build Vue App 
         working-directory: ./wordle-web
         run: npm run build
