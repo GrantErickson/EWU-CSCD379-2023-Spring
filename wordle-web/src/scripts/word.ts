@@ -2,7 +2,6 @@ import { Letter, LetterStatus } from './letter'
 
 export class Word {
   public letters = Array<Letter>()
-  readonly key = crypto.randomUUID()
 
   constructor(word?: string | null | number) {
     if (word) {
