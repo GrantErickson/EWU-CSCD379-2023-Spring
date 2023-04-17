@@ -1,14 +1,17 @@
 <template>
   <h1>Wordle Mind Bender</h1>
-  <v-text-field v-model="guess" label="Guess" variant="solo"></v-text-field>
+  <v-text-field
+    v-model="guess"
+    label="Guess"
+    variant="solo"
+    @keydown.prevent="($event:KeyboardEvent) => keyPress($event)"
+  ></v-text-field>
 
-  <v-btn @click="checkGuess">Check</v-btn>
+  <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
   <div>
     <v-row v-for="word in game.guesses" :key="word.text">
       <v-col v-for="letter in word.letters" :key="letter.char">
-        <v-btn :color="letter.color">
-          {{ letter.char }}
-        </v-btn>
+        <LetterButton :letter="letter" @click="letterClick(letter, $event)"></LetterButton>
       </v-col>
     </v-row>
   </div>
@@ -20,12 +23,49 @@
 <script setup lang="ts">
 import { WordleGame } from '@/scripts/wordleGame'
 import { ref, reactive } from 'vue'
+import LetterButton from '../components/LetterButton.vue'
+import type { Letter } from '@/scripts/letter'
+import { watch, onMounted, onUnmounted } from 'vue'
 
 const guess = ref('')
 const game = reactive(new WordleGame())
 console.log(game.secretWord)
 
+onMounted(() => {
+  window.addEventListener('keypress', keyPress)
+})
+onUnmounted(() => {
+  window.removeEventListener('keypress', keyPress)
+})
+
+watch(
+  guess,
+  (newGuess, oldGuess) => {
+    if (newGuess.length > 5) {
+      guess.value = oldGuess || ''
+    }
+  },
+  { flush: 'post' }
+)
+
 function checkGuess() {
   game.submitGuess(guess.value)
+  guess.value = ''
+}
+
+function letterClick(letter: Letter, event: MouseEvent) {
+  guess.value += letter.char
+  console.log(event.altKey)
+}
+
+function keyPress(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    checkGuess()
+  } else if (event.key === 'Backspace') {
+    guess.value = guess.value.slice(0, -1)
+  } else {
+    guess.value += event.key.toLowerCase()
+  }
+  //event.preventDefault()
 }
 </script>
