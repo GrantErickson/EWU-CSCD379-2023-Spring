@@ -1,34 +1,38 @@
 <template>
-  <h1>Wordle Mind Bender</h1>
-  <v-text-field
-    v-model="guess"
-    label="Guess"
-    variant="solo"
-    @keydown.prevent="($event:KeyboardEvent) => keyPress($event)"
-  ></v-text-field>
+  <v-container>
+    <v-card-title class="text-h4 text-center"> Wordle Mind Bender </v-card-title>
 
-  <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
-  <div>
-    <v-row v-for="word in game.guesses" :key="word.text">
-      <v-col v-for="letter in word.letters" :key="letter.char">
-        <LetterButton :letter="letter" @click="letterClick(letter, $event)"></LetterButton>
-      </v-col>
-    </v-row>
-  </div>
+    <GameBoard :game="game" @letterClick="addChar" />
 
-  <h2>{{ guess }}</h2>
-  <h3>{{ game.secretWord }}</h3>
+    <v-divider :thickness="5" class="my-5" />
+
+    <v-text-field
+      v-model="guess"
+      label="Guess"
+      variant="solo"
+      @keydown.prevent="($event:KeyboardEvent) => keyPress($event)"
+    ></v-text-field>
+
+    <GameKeyboard :guessedLetters="guessedLetters" @letterClick="addChar" />
+
+    <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
+
+    <p>{{ game.secretWord }}</p>
+  </v-container>
 </template>
 
 <script setup lang="ts">
 import { WordleGame } from '@/scripts/wordleGame'
 import { ref, reactive } from 'vue'
-import LetterButton from '../components/LetterButton.vue'
-import type { Letter } from '@/scripts/letter'
+import GameBoard from '@/components/GameBoard.vue'
+import GameKeyboard from '@/components/GameKeyboard.vue'
 import { watch, onMounted, onUnmounted } from 'vue'
+import { Letter } from '@/scripts/letter'
 
 const guess = ref('')
 const game = reactive(new WordleGame())
+const guessedLetters = reactive(new Array<Letter>())
+
 console.log(game.secretWord)
 
 onMounted(() => {
@@ -49,13 +53,21 @@ watch(
 )
 
 function checkGuess() {
+  // Add guessed letters
+  for (const letter of game.guess.letters) {
+    guessedLetters.push(letter)
+  }
+
   game.submitGuess()
+
   guess.value = ''
 }
 
-function letterClick(letter: Letter, event: MouseEvent) {
-  guess.value += letter.char
-  console.log(event.altKey)
+function addChar(letter: Letter) {
+  let key = letter.char.toLowerCase()
+
+  guess.value += key
+  game.guess.push(key)
 }
 
 function keyPress(event: KeyboardEvent) {
@@ -67,8 +79,7 @@ function keyPress(event: KeyboardEvent) {
     game.guess.pop()
     console.log('Back')
   } else if (event.key.length === 1 && event.key !== ' ') {
-    guess.value += event.key.toLowerCase()
-    game.guess.push(event.key.toLowerCase())
+    addChar(new Letter(event.key))
   }
   //event.preventDefault()
 }
