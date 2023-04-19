@@ -13,7 +13,7 @@
       @keydown.prevent="($event:KeyboardEvent) => keyPress($event)"
     ></v-text-field>
 
-    <GameKeyboard :guessedLetters="guessedLetters" @letterClick="addChar" />
+    <GameKeyboard :guessedLetters="game.guessedLetters" @letterClick="addChar" />
 
     <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
 
@@ -31,7 +31,6 @@ import { Letter } from '@/scripts/letter'
 
 const guess = ref('')
 const game = reactive(new WordleGame())
-const guessedLetters = reactive(new Array<Letter>())
 
 console.log(game.secretWord)
 
@@ -53,11 +52,6 @@ watch(
 )
 
 function checkGuess() {
-  // Add guessed letters
-  for (const letter of game.guess.letters) {
-    guessedLetters.push(letter)
-  }
-
   game.submitGuess()
 
   guess.value = ''
