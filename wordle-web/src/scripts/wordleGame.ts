@@ -20,6 +20,13 @@ export class WordleGame {
   //     return
   //   }
 
+  /*
+             Current
+            W   M    C
+         W  o   ✘   ✘
+  New    M  ✔   o   ✘
+         C  ✔   ✔   o
+  */
   trackLetter(newLetter: Letter) {
     const currentLetter = this.guessedLetters.find(l => l.char === newLetter.char);
     if (currentLetter) {
