@@ -11,6 +11,7 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import Axios from 'axios'
 
 const vuetify = createVuetify({
   components,
@@ -22,6 +23,16 @@ const vuetify = createVuetify({
     }
   }
 })
+
+// Setup Axios default URL
+if (
+  window.location.origin.indexOf('localhost') > -1 ||
+  window.location.origin.indexOf('127.0.0.1') > -1
+) {
+  Axios.defaults.baseURL = 'https://localhost:7278/'
+} else {
+  Axios.defaults.baseURL = 'https://wordletest2023.azurewebsites.net/'
+}
 
 const app = createApp(App)
 
