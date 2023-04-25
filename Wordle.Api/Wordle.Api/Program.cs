@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen();
 logger.LogInformation("Building Services");
 var app = builder.Build();
 
-app.Logger.LogInformation("App Built. Starting App Process");
+app.Logger.LogInformation("App Services Built. Building App Pipeline.");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -43,5 +43,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Logger.Log(LogLevel.Information, "Starting App");
+app.Logger.Log(LogLevel.Information, "Starting App...");
 app.Run();
