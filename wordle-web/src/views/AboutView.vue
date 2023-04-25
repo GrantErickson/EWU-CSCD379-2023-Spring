@@ -21,10 +21,11 @@ class Weather {
   summary!: string
 }
 
-// Get data from https://127.0.0.1:7278/weatherforecast
-let forecast = ref(new Array<Weather>())
+// Hold forecast data to display
+const forecast = ref<Weather[]>()
 
-Axios.get('/weatherforecast')
+// Get forecast data
+Axios.get('/WeatherForecast')
   .then((response) => {
     console.log(response)
     forecast.value = response.data
@@ -32,8 +33,6 @@ Axios.get('/weatherforecast')
   .catch((error) => {
     console.log(error)
   })
-
-//;({ data } = (await Axios.get('https://localhost:7278/api/about'))!)
 </script>
 
 <style>
