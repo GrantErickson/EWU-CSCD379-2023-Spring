@@ -21,7 +21,40 @@ const vuetify = createVuetify({
     sets: {
       mdi
     }
-  }
+  },
+  theme: {
+    defaultTheme:
+      "dark",
+    themes: {
+      inverse: {
+        colors: {
+          primary: "#1976d2",
+          secondary: "#424242",
+          error: "#4CAF50",
+          warning: "#ff6d00",
+          success: "#F44336"
+        },
+      },
+      dark: {
+        colors: {
+          primary: "#1976d2",
+          secondary: "#424242",
+          error: "#F44336",
+          warning: "#FFEB3B",
+          success: "#4CAF50"
+        },
+      },
+      light: {
+        colors: {
+          primary: "#1976d2",
+          secondary: "#424242",
+          error: "#F44336",
+          warning: "#ff6d00",
+          success: "#4CAF50"
+        },
+      },
+    },
+  },
 })
 
 // Setup Axios default URL

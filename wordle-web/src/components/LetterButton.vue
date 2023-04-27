@@ -1,14 +1,13 @@
 <template>
-  <LetterBase :char="props.letter.char" :color="props.letter.color"></LetterBase>
+  <v-btn :color="letter.color" label height="50px" width="50px" outlined class="">
+    {{ letter.char.toUpperCase() }}
+  </v-btn>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { Letter } from '@/scripts/letter'
-import LetterBase from './LetterBase.vue'
 
-export interface Props {
+defineProps<{
   letter: Letter
-}
-
-const props = defineProps<Props>()
+}>()
 </script>
