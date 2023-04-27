@@ -1,5 +1,9 @@
 <template>
-  <v-card v-for="item of forecast" :key="item.date" class="ma-1">
+  {{ dialog }}
+
+  <WeatherDialog v-model="dialog" :weather="weatherItem" />
+
+  <v-card @click="openDialog(item)" v-for="item of forecast" :key="item.date" class="ma-1">
     <v-card-title> {{ item.date }} </v-card-title>
     <v-card-subtitle
       >{{ item.temperatureC }}&#8451; {{ item.temperatureF }}&#8457;
@@ -13,16 +17,20 @@
 <script setup lang="ts">
 import Axios from 'axios'
 import { ref } from 'vue'
+import WeatherDialog from '@/components/WeatherDialog.vue'
+import { Weather } from '@/types/Weather'
 
-class Weather {
-  date!: string
-  temperatureC!: number
-  temperatureF!: number
-  summary!: string
-}
+let dialog = ref(false)
 
 // Hold forecast data to display
 const forecast = ref<Weather[]>()
+
+const weatherItem = ref<Weather>()
+
+function openDialog(item: Weather) {
+  dialog.value = true
+  weatherItem.value = item
+}
 
 // Get forecast data
 Axios.get('/WeatherForecast')
