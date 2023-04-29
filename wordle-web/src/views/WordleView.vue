@@ -17,6 +17,9 @@
 
     <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
 
+    {{ game.availableWords().length }}
+    {{ game.availableWords().length < 20 ? game.availableWords() : '' }}
+
     <p>{{ game.secretWord }}</p>
   </v-container>
 </template>
