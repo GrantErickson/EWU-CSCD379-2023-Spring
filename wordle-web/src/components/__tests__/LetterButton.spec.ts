@@ -21,6 +21,6 @@ describe('LetterBase', () => {
     // Test content is right
     expect(wrapper.text()).toContain('A')
     // Test color is right
-    expect(wrapper.attributes('color')).toBe('green')
+    expect(wrapper.attributes('color')).toBe('success')
   })
 })

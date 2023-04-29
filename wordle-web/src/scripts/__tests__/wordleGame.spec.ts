@@ -22,10 +22,10 @@ describe('WordleGame', () => {
     game.submitGuess()
     const map = game.getLetterMap()
     expect(map).toHaveLength(4)
-    expect(map.get('a')).toEqual(['O', '?', '?', '?', '?'])
-    expect(map.get('p')).toEqual(['?', 'O', 'O', '?', '?'])
-    expect(map.get('l')).toEqual(['?', '?', '?', 'O', '?'])
-    expect(map.get('e')).toEqual(['?', '?', '?', '?', 'O'])
+    expect(map.get('a')).toEqual(['C', '?', '?', '?', '?'])
+    expect(map.get('p')).toEqual(['?', 'C', 'C', '?', '?'])
+    expect(map.get('l')).toEqual(['?', '?', '?', 'C', '?'])
+    expect(map.get('e')).toEqual(['?', '?', '?', '?', 'C'])
   })
 
   it('Gets one Letter Map 2', () => {
@@ -42,13 +42,13 @@ describe('WordleGame', () => {
     const map = game.getLetterMap()
     expect(map).toHaveLength(2)
     expect(map.get('a')).toEqual(['?', 'X', '?', 'X', '?'])
-    expect(map.get('p')).toEqual(['X', '?', 'O', '?', 'X'])
+    expect(map.get('p')).toEqual(['X', '?', 'C', '?', 'X'])
   })
 
   it('MapMatch Works', () => {
     const game = new WordleGame('apple')
-    expect(game.mapMatch('a', ['O', '?', 'X', '?', 'X'], 'apple')).toBe(true)
-    expect(game.mapMatch('a', ['?', 'O', 'X', '?', 'X'], 'apple')).toBe(false)
+    expect(game.mapMatch('a', ['C', '?', 'X', '?', 'X'], 'apple')).toBe(true)
+    expect(game.mapMatch('a', ['?', 'C', 'X', '?', 'X'], 'apple')).toBe(false)
   })
 
   it('Gets one Letter Map Correct', () => {
@@ -56,6 +56,41 @@ describe('WordleGame', () => {
     expect(game.guesses).toHaveLength(6)
     game.guess.text = 'apple'
     game.submitGuess()
+    expect(game.availableWords()).toHaveLength(1)
+  })
+
+  it('Gets one Letter Map Correct', () => {
+    const game = new WordleGame('apple')
+    expect(game.guesses).toHaveLength(6)
+    game.guess.text = 'paper' // MMCMW
+    game.submitGuess()
+    const map = game.getLetterMap()
+    expect(map).toHaveLength(4)
+    expect(map.get('p')).toEqual(['X', '?', 'C', '?', '?'])
+    expect(map.get('a')).toEqual(['?', 'X', '?', '?', '?'])
+    expect(map.get('e')).toEqual(['?', '?', '?', 'X', '?'])
+    expect(map.get('r')).toEqual(['X', 'X', 'X', 'X', 'X'])
+    console.log(game.availableWords())
+    expect(game.availableWords()).toHaveLength(144)
+  })
+
+  it('Gets one Letter Map Correct', () => {
+    const game = new WordleGame('apple')
+    expect(game.guesses).toHaveLength(6)
+    game.guess.text = 'paper' // MMCMW
+    game.submitGuess()
+    game.guess.text = 'stnmb' // MMCMW
+    game.submitGuess()
+    game.guess.text = 'lppae' // MMCMW
+    game.submitGuess()
+    const map = game.getLetterMap()
+    expect(map).toHaveLength(10)
+    expect(map.get('p')).toEqual(['X', 'C', 'C', '?', '?'])
+    expect(map.get('a')).toEqual(['?', 'X', '?', 'X', '?'])
+    expect(map.get('e')).toEqual(['?', '?', '?', 'X', 'C'])
+    expect(map.get('r')).toEqual(['X', 'X', 'X', 'X', 'X'])
+    expect(map.get('s')).toEqual(['X', 'X', 'X', 'X', 'X'])
+    console.log(game.availableWords())
     expect(game.availableWords()).toHaveLength(1)
   })
 })

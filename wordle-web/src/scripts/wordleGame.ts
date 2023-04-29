@@ -95,7 +95,7 @@ export class WordleGame {
     for (const [index, status] of letterMap.entries()) {
       if (status == 'X') {
         if (word[index] == letter) return false
-      } else if (status == 'O') {
+      } else if (status == 'C') {
         if (word[index] != letter) return false
       }
     }
@@ -113,7 +113,7 @@ export class WordleGame {
         const letterArray = letters.get(letter.char)!
         if (letter.status == LetterStatus.Correct) {
           // If this letter is correct, mark it as correct in the array for this letter
-          letterArray[index] = 'O'
+          letterArray[index] = 'C'
           //letters.get(letter.char)!.splice(index, 1, 'O')
         } else if (letter.status == LetterStatus.Misplaced) {
           // Misplaced letters are marked with a X
