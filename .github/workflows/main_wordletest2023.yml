@@ -28,10 +28,14 @@ jobs:
         working-directory: ./Wordle.Api
         run: dotnet build --configuration Release
 
+      - name: dotnet test
+        working-directory: ./Wordle.Api
+        run: dotnet test
+
       - name: dotnet publish
         working-directory: ./Wordle.Api
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
+        
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
