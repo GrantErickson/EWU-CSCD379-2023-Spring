@@ -22,6 +22,16 @@ export class Word {
   get text() {
     return this.letters.map((l) => l.char).join('')
   }
+  set text(value: string) {
+    // Clear all letters
+    for (const letter of this.letters) {
+      letter.char = ''
+    }
+    // Add the new letters
+    for (const letter of value) {
+      this.push(letter)
+    }
+  }
 
   push(char: string) {
     // Find the first empty letter and replace it
