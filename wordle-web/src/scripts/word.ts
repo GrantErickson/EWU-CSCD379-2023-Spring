@@ -2,6 +2,7 @@ import { Letter, LetterStatus } from './letter'
 
 export class Word {
   public letters = Array<Letter>()
+  public isScored = false
 
   constructor(word?: string | null | number) {
     if (word) {
@@ -91,6 +92,7 @@ export class Word {
     console.log(guessChars)
     console.log(secretChars)
     console.log(isCorrect)
+    this.isScored = true
     return isCorrect
     // check if the letters are in the right place
   }

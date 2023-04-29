@@ -62,6 +62,25 @@ describe('WordleGame', () => {
   it('Gets one Letter Map Correct', () => {
     const game = new WordleGame('apple')
     expect(game.guesses).toHaveLength(6)
+    const word = game.guess
+    game.guess.text = 'pplpe'
+    game.submitGuess()
+    expect(word.letters[0].status).toBe(LetterStatus.Misplaced) // p
+    expect(word.letters[1].status).toBe(LetterStatus.Correct) //   p
+    expect(word.letters[2].status).toBe(LetterStatus.Misplaced) // l
+    expect(word.letters[3].status).toBe(LetterStatus.Wrong) //     p
+    expect(word.letters[4].status).toBe(LetterStatus.Correct) //   e
+    expect(game.availableWords()).toHaveLength(31)
+    const map = game.getLetterMap()
+    expect(map).toHaveLength(3)
+    expect(map.get('p')).toEqual(['X', 'C', '?', 'X', '?'])
+    expect(map.get('l')).toEqual(['?', '?', 'X', '?', '?'])
+    expect(map.get('e')).toEqual(['?', '?', '?', '?', 'C'])
+  })
+
+  it('Gets one Letter Map Correct', () => {
+    const game = new WordleGame('apple')
+    expect(game.guesses).toHaveLength(6)
     game.guess.text = 'paper' // MMCMW
     game.submitGuess()
     const map = game.getLetterMap()

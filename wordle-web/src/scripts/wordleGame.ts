@@ -74,57 +74,80 @@ export class WordleGame {
     }
   }
 
+  // Calculate the available words based on the current state of the game
   availableWords(): string[] {
+    // Get a letter map which is map of each letter that has been guessed with an array
+    // of locations the letter either is absolutely 'C', can't be 'X', or might be '?'.
     const map = this.getLetterMap()
     const availableWords = new Array<string>()
 
+    // Iterate over all the possible words
     for (const word of WordsService.allWords()) {
+      // Create a variable to track if this word is valid based on guessed words.
       let isGood = true
+      // Iterate over each of the letter maps.
       for (const [letter, letterMap] of map) {
+        // If the word doesn't match the letter map, mark it as bad and bail from the loop.
         if (!this.mapMatch(letter, letterMap, word)) {
           isGood = false
           break
         }
       }
+      // If the word made it through all the letter maps, add it to the list of available words.
       if (isGood) availableWords.push(word)
     }
     return availableWords
   }
 
   mapMatch(letter: string, letterMap: string[], word: string) {
+    // Iterate over each place in the letter map and compare it to the word.
     for (const [index, status] of letterMap.entries()) {
       if (status == 'X') {
+        // If the letter map is an 'X' and the word letter is the same as the letter, fail
         if (word[index] == letter) return false
       } else if (status == 'C') {
+        // If the letter map is a 'C' and the word letter is not the same as the letter, fail.
         if (word[index] != letter) return false
       }
+      // The ? case is unnecessary because it is the default state.
     }
     return true
   }
 
   getLetterMap() {
+    // Create a map of each letter that has been guessed with an array of locations
+    // the letter either is absolutely 'C', can't be 'X', or might be ' ? '.
     const letters = new Map<string, string[]>()
-    for (const guess of this.guesses) {
+    // Iterate all the guesses
+    for (const guess of this.guesses.filter((g) => g.isScored)) {
+      console.log(guess.text)
+      // Iterate all the letters in the guess
       for (const [index, letter] of guess.letters.entries()) {
-        if (letter.char === '' || 'abcedfghijklmnopqrstuvwxyz'.indexOf(letter.char) < 0) continue
+        // Make sure the guess is a letter and not blank
+        if (letter.char === '') continue
+        // If the letter hasn't been added to the map yet, add it with all unknowns
         if (!letters.has(letter.char)) {
           letters.set(letter.char, ['?', '?', '?', '?', '?'])
         }
+        // Get the array for this letter
         const letterArray = letters.get(letter.char)!
         if (letter.status == LetterStatus.Correct) {
-          // If this letter is correct, mark it as correct in the array for this letter
+          // If this letter is correct, mark it as correct in the array for this index
           letterArray[index] = 'C'
-          //letters.get(letter.char)!.splice(index, 1, 'O')
         } else if (letter.status == LetterStatus.Misplaced) {
-          // Misplaced letters are marked with a X
+          // Misplaced indexes are marked with a X
           letterArray[index] = 'X'
         } else {
           // The value is incorrect
-          // If there is already an X, just change this one letter to X
-          if (letters.get(letter.char)!.indexOf('X') > -1) {
+          // If there is already an X in the array that means this letter has been misplaced
+          // once already as the result of a misplaced letter. Just change this one index
+          // to X because we don't know for sure that this letter is totally wrong in all
+          // locations
+          if (letterArray.indexOf('X') > -1) {
             letterArray[index] = 'X'
           } else {
-            // If the letter is incorrect, replace any unknowns with X
+            // If the letter is incorrect, replace any unknowns with X.
+            // Any subsequent correct guesses will override this.
             letterArray.forEach((value, index) => {
               if (value == '?') {
                 letterArray[index] = 'X'
