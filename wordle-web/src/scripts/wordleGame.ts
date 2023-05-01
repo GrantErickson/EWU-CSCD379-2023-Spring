@@ -101,6 +101,13 @@ export class WordleGame {
 
   mapMatch(letter: string, letterMap: string[], word: string) {
     // Iterate over each place in the letter map and compare it to the word.
+    // check if all entries are 'X'
+    if (letterMap.every((l) => l === 'X')) {
+      // If all the entries are 'X', the word must not contain the letter.
+      return !word.includes(letter)
+    }
+    // The letter must appear at least once in the word.
+    if (!word.includes(letter)) return false
     for (const [index, status] of letterMap.entries()) {
       if (status == 'X') {
         // If the letter map is an 'X' and the word letter is the same as the letter, fail
