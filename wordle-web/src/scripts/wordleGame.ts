@@ -76,14 +76,15 @@ export class WordleGame {
   }
 
   // Calculate the available words based on the current state of the game
-  availableWords(): string[] {
+  availableWords(testWord?: Word, wordList?: string[]): string[] {
     // Get a letter map which is map of each letter that has been guessed with an array
     // of locations the letter either is absolutely 'C', can't be 'X', or might be '?'.
-    const map = this.getLetterUsages()
+    const map = this.getLetterUsages(testWord)
     const availableWords = new Array<string>()
 
+    const wordsToCheck = wordList || WordsService.allWords()
     // Iterate over all the possible words
-    for (const word of WordsService.allWords()) {
+    for (const word of wordsToCheck) {
       // Create a variable to track if this word is valid based on guessed words.
       let isGood = true
       // Iterate over each of the letter maps.
@@ -100,13 +101,15 @@ export class WordleGame {
     return availableWords
   }
 
-  getLetterUsages() {
+  getLetterUsages(testWord?: Word) {
     // Create an array of each letter that has been guessed with an array of locations
     // the letter either is absolutely 'C', can't be 'X', or might be ' ? '.
     const letterUsages = new LetterUsages()
+    const myGuesses = this.guesses.filter((g) => g.isScored)
+    if (testWord) myGuesses.push(testWord)
     // Iterate all the guesses
-    for (const guess of this.guesses.filter((g) => g.isScored)) {
-      console.log(guess.text)
+    for (const guess of myGuesses) {
+      //console.log(guess.text)
       // Clear the current letter counts for this word
       letterUsages.clearCurrentCounts()
       // Iterate all the letters in the guess
@@ -156,5 +159,45 @@ export class WordleGame {
       letterUsages.updateOccurrencesFromCurrentCounts()
     }
     return letterUsages
+  }
+
+  nextBestGuess() {
+    const availableWords = this.availableWords()
+    // Count all the letters in the available words
+    const letterCounts = new Map<string, number>()
+    'abcedfgihjklmnopqrstuvwxyz'.split('').forEach((char) => letterCounts.set(char, 0))
+    for (const word of availableWords) {
+      for (const char of word) {
+        letterCounts.set(char, letterCounts.get(char)! + 1)
+      }
+    }
+
+    let bestWord = ''
+    let bestWordCount = 0
+
+    if (availableWords.length <= 2) {
+      // There is only one or two words left.
+      bestWord = 'Guess: ' + availableWords[0]
+    } else {
+      for (const word of availableWords) {
+        let count = 0
+        let chars = ''
+        for (const char of word) {
+          if (chars.indexOf(char) == -1) {
+            chars += char
+            count += letterCounts.get(char)!
+          } else {
+            //count += letterCounts.get(char)! * 0.25
+          }
+        }
+        if (bestWordCount < count) {
+          bestWord = word
+          bestWordCount = count
+        }
+      }
+      bestWord = 'General: ' + bestWord
+    }
+
+    return bestWord
   }
 }

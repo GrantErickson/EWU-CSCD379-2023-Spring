@@ -33,6 +33,7 @@
       </v-card-subtitle>
     </v-card>
     <p>{{ game.secretWord }}</p>
+    {{ game.nextBestGuess() }}
   </v-container>
 </template>
 
