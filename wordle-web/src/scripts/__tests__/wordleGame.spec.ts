@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { WordleGame } from '@/scripts/wordleGame'
-import { Word } from '@/scripts/word'
 import { LetterStatus } from '../letter'
+import { LetterUsage } from '../letterUsage'
 
 describe('WordleGame', () => {
   it('Gets a word', () => {
@@ -12,7 +12,7 @@ describe('WordleGame', () => {
   it('Gets empty Letter Map', () => {
     const game = new WordleGame()
     expect(game.guesses).toHaveLength(6)
-    expect(game.getLetterMap()).toHaveLength(0)
+    expect(game.getLetterUsages()).toHaveLength(0)
   })
 
   it('Gets one Letter Map Correct', () => {
@@ -20,12 +20,12 @@ describe('WordleGame', () => {
     expect(game.guesses).toHaveLength(6)
     game.guess.text = 'apple'
     game.submitGuess()
-    const map = game.getLetterMap()
+    const map = game.getLetterUsages()
     expect(map).toHaveLength(4)
-    expect(map.get('a')).toEqual(['C', '?', '?', '?', '?'])
-    expect(map.get('p')).toEqual(['?', 'C', 'C', '?', '?'])
-    expect(map.get('l')).toEqual(['?', '?', '?', 'C', '?'])
-    expect(map.get('e')).toEqual(['?', '?', '?', '?', 'C'])
+    expect(map.get('a').usages).toEqual(['C', '?', '?', '?', '?'])
+    expect(map.get('p').usages).toEqual(['?', 'C', 'C', '?', '?'])
+    expect(map.get('l').usages).toEqual(['?', '?', '?', 'C', '?'])
+    expect(map.get('e').usages).toEqual(['?', '?', '?', '?', 'C'])
   })
 
   it('Gets one Letter Map 2', () => {
@@ -39,16 +39,15 @@ describe('WordleGame', () => {
     expect(word.letters[2].status).toBe(LetterStatus.Correct) //   p
     expect(word.letters[3].status).toBe(LetterStatus.Wrong) //     a
     expect(word.letters[4].status).toBe(LetterStatus.Wrong) //     p
-    const map = game.getLetterMap()
+    const map = game.getLetterUsages()
     expect(map).toHaveLength(2)
-    expect(map.get('a')).toEqual(['?', 'X', '?', 'X', '?'])
-    expect(map.get('p')).toEqual(['X', '?', 'C', '?', 'X'])
+    expect(map.get('a').usages).toEqual(['?', 'X', '?', 'X', '?'])
+    expect(map.get('p').usages).toEqual(['X', '?', 'C', '?', 'X'])
   })
 
   it('MapMatch Works', () => {
-    const game = new WordleGame('apple')
-    expect(game.mapMatch('a', ['C', '?', 'X', '?', 'X'], 'apple')).toBe(true)
-    expect(game.mapMatch('a', ['?', 'C', 'X', '?', 'X'], 'apple')).toBe(false)
+    expect(new LetterUsage('a', ['C', '?', 'X', '?', 'X']).matchWord('apple')).toBe(true)
+    expect(new LetterUsage('a', ['?', 'C', 'X', '?', 'X']).matchWord('apple')).toBe(false)
   })
 
   it('Gets one Letter Map Correct', () => {
@@ -70,46 +69,56 @@ describe('WordleGame', () => {
     expect(word.letters[2].status).toBe(LetterStatus.Misplaced) // l
     expect(word.letters[3].status).toBe(LetterStatus.Wrong) //     p
     expect(word.letters[4].status).toBe(LetterStatus.Correct) //   e
-    expect(game.availableWords()).toHaveLength(31)
-    const map = game.getLetterMap()
+    expect(game.availableWords()).toHaveLength(1)
+    const map = game.getLetterUsages()
     expect(map).toHaveLength(3)
-    expect(map.get('p')).toEqual(['X', 'C', '?', 'X', '?'])
-    expect(map.get('l')).toEqual(['?', '?', 'X', '?', '?'])
-    expect(map.get('e')).toEqual(['?', '?', '?', '?', 'C'])
+    expect(map.get('p').usages).toEqual(['X', 'C', '?', 'X', '?'])
+    expect(map.get('p').minimumOccurrences).toBe(2)
+    expect(map.get('p').maximumOccurrences).toBe(2)
+    expect(map.get('l').usages).toEqual(['?', '?', 'X', '?', '?'])
+    expect(map.get('l').minimumOccurrences).toBe(1)
+    expect(map.get('l').maximumOccurrences).toBe(null)
+    expect(map.get('e').usages).toEqual(['?', '?', '?', '?', 'C'])
+    expect(map.get('e').minimumOccurrences).toBe(1)
+    expect(map.get('e').maximumOccurrences).toBe(null)
+
+    expect(game.availableWords()).toContain('apple')
   })
 
-  it('Gets one Letter Map Correct', () => {
+  it('apple - paper', () => {
     const game = new WordleGame('apple')
     expect(game.guesses).toHaveLength(6)
     game.guess.text = 'paper' // MMCMW
     game.submitGuess()
-    const map = game.getLetterMap()
+    const map = game.getLetterUsages()
     expect(map).toHaveLength(4)
-    expect(map.get('p')).toEqual(['X', '?', 'C', '?', '?'])
-    expect(map.get('a')).toEqual(['?', 'X', '?', '?', '?'])
-    expect(map.get('e')).toEqual(['?', '?', '?', 'X', '?'])
-    expect(map.get('r')).toEqual(['X', 'X', 'X', 'X', 'X'])
-    console.log(game.availableWords())
-    expect(game.availableWords()).toHaveLength(144)
-  })
-
-  it('Gets one Letter Map Correct', () => {
-    const game = new WordleGame('apple')
-    expect(game.guesses).toHaveLength(6)
-    game.guess.text = 'paper' // MMCMW
-    game.submitGuess()
-    game.guess.text = 'stnmb' // MMCMW
-    game.submitGuess()
-    game.guess.text = 'lppae' // MMCMW
-    game.submitGuess()
-    const map = game.getLetterMap()
-    expect(map).toHaveLength(10)
-    expect(map.get('p')).toEqual(['X', 'C', 'C', '?', '?'])
-    expect(map.get('a')).toEqual(['?', 'X', '?', 'X', '?'])
-    expect(map.get('e')).toEqual(['?', '?', '?', 'X', 'C'])
-    expect(map.get('r')).toEqual(['X', 'X', 'X', 'X', 'X'])
-    expect(map.get('s')).toEqual(['X', 'X', 'X', 'X', 'X'])
+    expect(map.get('p').usages).toEqual(['X', '?', 'C', '?', '?'])
+    expect(map.get('e').usages).toEqual(['?', '?', '?', 'X', '?'])
+    expect(map.get('a').usages).toEqual(['?', 'X', '?', '?', '?'])
+    expect(map.get('r').usages).toEqual(['X', 'X', 'X', 'X', 'X'])
     console.log(game.availableWords())
     expect(game.availableWords()).toHaveLength(1)
+    expect(game.availableWords()).toContain('apple')
+  })
+
+  it('apple - paper, stnmb', () => {
+    const game = new WordleGame('apple')
+    expect(game.guesses).toHaveLength(6)
+    game.guess.text = 'tests'
+    game.submitGuess()
+    game.guess.text = 'stnmb'
+    game.submitGuess()
+    game.guess.text = 'aaepe'
+    game.submitGuess()
+    const map = game.getLetterUsages()
+    expect(map).toHaveLength(8)
+    //expect(map.get('p').usages).toEqual(['?', 'C', '?', '?', '?'])
+    expect(map.get('e').usages).toEqual(['X', 'X', 'X', 'X', 'C'])
+    expect(map.get('t').usages).toEqual(['X', 'X', 'X', 'X', 'X'])
+    expect(map.get('s').usages).toEqual(['X', 'X', 'X', 'X', 'X'])
+    console.log(game.availableWords())
+    expect(game.availableWords()).toHaveLength(2)
+    expect(game.availableWords()).toContain('apple')
+    expect(game.availableWords()).toContain('apode')
   })
 })

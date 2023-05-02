@@ -1,6 +1,7 @@
 import { Word } from '@/scripts/word'
 import { WordsService } from './wordsService'
 import { LetterStatus, Letter } from './letter'
+import { LetterUsages } from './letterUsages'
 
 export class WordleGame {
   constructor(secretWord?: string, numberOfGuesses: number = 6) {
@@ -78,7 +79,7 @@ export class WordleGame {
   availableWords(): string[] {
     // Get a letter map which is map of each letter that has been guessed with an array
     // of locations the letter either is absolutely 'C', can't be 'X', or might be '?'.
-    const map = this.getLetterMap()
+    const map = this.getLetterUsages()
     const availableWords = new Array<string>()
 
     // Iterate over all the possible words
@@ -86,9 +87,9 @@ export class WordleGame {
       // Create a variable to track if this word is valid based on guessed words.
       let isGood = true
       // Iterate over each of the letter maps.
-      for (const [letter, letterMap] of map) {
+      for (const letterUsage of map) {
         // If the word doesn't match the letter map, mark it as bad and bail from the loop.
-        if (!this.mapMatch(letter, letterMap, word)) {
+        if (!letterUsage.matchWord(word)) {
           isGood = false
           break
         }
@@ -99,71 +100,61 @@ export class WordleGame {
     return availableWords
   }
 
-  mapMatch(letter: string, letterMap: string[], word: string) {
-    // Iterate over each place in the letter map and compare it to the word.
-    // check if all entries are 'X'
-    if (letterMap.every((l) => l === 'X')) {
-      // If all the entries are 'X', the word must not contain the letter.
-      return !word.includes(letter)
-    }
-    // The letter must appear at least once in the word.
-    if (!word.includes(letter)) return false
-    for (const [index, status] of letterMap.entries()) {
-      if (status == 'X') {
-        // If the letter map is an 'X' and the word letter is the same as the letter, fail
-        if (word[index] == letter) return false
-      } else if (status == 'C') {
-        // If the letter map is a 'C' and the word letter is not the same as the letter, fail.
-        if (word[index] != letter) return false
-      }
-      // The ? case is unnecessary because it is the default state.
-    }
-    return true
-  }
-
-  getLetterMap() {
-    // Create a map of each letter that has been guessed with an array of locations
+  getLetterUsages() {
+    // Create an array of each letter that has been guessed with an array of locations
     // the letter either is absolutely 'C', can't be 'X', or might be ' ? '.
-    const letters = new Map<string, string[]>()
+    const letterUsages = new LetterUsages()
     // Iterate all the guesses
     for (const guess of this.guesses.filter((g) => g.isScored)) {
       console.log(guess.text)
+      // Clear the current letter counts for this word
+      letterUsages.clearCurrentCounts()
       // Iterate all the letters in the guess
       for (const [index, letter] of guess.letters.entries()) {
         // Make sure the guess is a letter and not blank
         if (letter.char === '') continue
-        // If the letter hasn't been added to the map yet, add it with all unknowns
-        if (!letters.has(letter.char)) {
-          letters.set(letter.char, ['?', '?', '?', '?', '?'])
-        }
-        // Get the array for this letter
-        const letterArray = letters.get(letter.char)!
+        // If the letter hasn't been added to the array yet, add it with all unknowns
+        const letterUsage = letterUsages.getOrAdd(letter.char, this.secretWord.length)
+        if (letterUsage.currentCount == null) letterUsage.currentCount = 0
         if (letter.status == LetterStatus.Correct) {
           // If this letter is correct, mark it as correct in the array for this index
-          letterArray[index] = 'C'
+          letterUsage.usages[index] = 'C'
+          letterUsage.currentCount++
+          if (letterUsage.wasMaxCountFound) {
+            // If the max count was already found, mark all the unknowns as X
+            letterUsage.usages.forEach((value, index) => {
+              if (value == '?') {
+                letterUsage!.usages[index] = 'X'
+              }
+            })
+          }
         } else if (letter.status == LetterStatus.Misplaced) {
           // Misplaced indexes are marked with a X
-          letterArray[index] = 'X'
+          letterUsage.usages[index] = 'X'
+          letterUsage.currentCount++
         } else {
           // The value is incorrect
           // If there is already an X in the array that means this letter has been misplaced
           // once already as the result of a misplaced letter. Just change this one index
           // to X because we don't know for sure that this letter is totally wrong in all
           // locations
-          if (letterArray.indexOf('X') > -1) {
-            letterArray[index] = 'X'
+          if (letterUsage.usages.indexOf('X') > -1) {
+            letterUsage.usages[index] = 'X'
           } else {
             // If the letter is incorrect, replace any unknowns with X.
             // Any subsequent correct guesses will override this.
-            letterArray.forEach((value, index) => {
+            letterUsage.usages.forEach((value, index) => {
               if (value == '?') {
-                letterArray[index] = 'X'
+                letterUsage!.usages[index] = 'X'
               }
             })
           }
+          // Is this letter is wrong, we found the max.
+          letterUsage.wasMaxCountFound = true
         }
       }
+      letterUsages.updateOccurrencesFromCurrentCounts()
     }
-    return letters
+    return letterUsages
   }
 }
