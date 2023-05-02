@@ -1,7 +1,7 @@
 <template>
   {{ dialog }}
 
-  <WeatherDialog v-model="dialog" :weather="weatherItem" />
+  <WeatherDialog v-model="dialog" :weather="weatherItem!" />
 
   <v-card @click="openDialog(item)" v-for="item of forecast" :key="item.date" class="ma-1">
     <v-card-title> {{ item.date }} </v-card-title>
@@ -18,7 +18,7 @@
 import Axios from 'axios'
 import { ref } from 'vue'
 import WeatherDialog from '@/components/WeatherDialog.vue'
-import { Weather } from '@/types/Weather'
+import type { Weather } from '@/types/weather'
 
 let dialog = ref(false)
 

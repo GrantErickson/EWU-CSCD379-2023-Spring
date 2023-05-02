@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { Weather } from '@/types/Weather'
+import type { Weather } from '@/types/weather'
 import { computed } from 'vue'
 
 const props = defineProps<{
