@@ -1,4 +1,5 @@
 import { LetterUsage } from './letterUsage'
+import { LetterUsageSummary, UsageSummary } from './usageSummary'
 
 export class LetterUsages extends Array<LetterUsage> {
   // Allow getting or creating a letter easily.
@@ -43,5 +44,40 @@ export class LetterUsages extends Array<LetterUsage> {
         }
       }
     }
+  }
+
+  public summary() {
+    const result = new UsageSummary()
+    if (this.length === 0) return result
+    const wordLength = this[0].usages.length
+    for (let i = 0; i < wordLength; i++) {
+      result.correctLetters.push('?')
+    }
+    for (const letterUsage of this) {
+      if (letterUsage.maximumOccurrences === 0) {
+        result.wrongLetters.push(letterUsage.char)
+      } else {
+        const letterUsageSummary = new LetterUsageSummary(letterUsage.char)
+        for (const [index, usage] of letterUsage.usages.entries()) {
+          if (usage === 'C') {
+            result.correctLetters[index] = letterUsage.char
+            letterUsageSummary.locations[index] = letterUsage.char
+          } else if (usage === 'X') {
+            letterUsageSummary.locations[index] = 'X'
+          } else {
+            letterUsageSummary.locations[index] = '?'
+          }
+        }
+        if (letterUsage.maximumOccurrences !== null) {
+          letterUsageSummary.count = letterUsage.maximumOccurrences
+          letterUsageSummary.isMaxKnown = true
+        } else if (letterUsage.minimumOccurrences !== null) {
+          letterUsageSummary.count = letterUsage.minimumOccurrences
+        }
+        result.misplacedLetters.push(letterUsageSummary)
+      }
+    }
+
+    return result
   }
 }

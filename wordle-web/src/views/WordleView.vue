@@ -6,20 +6,32 @@
 
     <v-divider :thickness="5" class="my-5" />
 
-    <v-text-field
-      v-model="guess"
-      label="Guess"
-      variant="solo"
-      @keydown.prevent="($event:KeyboardEvent) => keyPress($event)"
-    ></v-text-field>
-
     <GameKeyboard :guessedLetters="game.guessedLetters" @letterClick="addChar" />
 
     <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
 
-    {{ game.availableWords().length }}
-    {{ game.availableWords().length < 20 ? game.availableWords() : '' }}
-
+    <v-card class="my-5">
+      <v-card-title
+        >Word: [ {{ game.getLetterUsages().summary().correctLetters.join(' ') }} ]</v-card-title
+      >
+      <v-card-subtitle
+        >Wrong: {{ game.getLetterUsages().summary().wrongLetters.join(', ') }}
+      </v-card-subtitle>
+      <v-card-text>
+        <p v-for="item in game.getLetterUsages().summary().misplacedLetters" :key="item.char">
+          {{ item.char }}
+          [ {{ item.locations.join(' ') }} ] Count: {{ item.count }}
+          {{ item.isMaxKnown ? 'Max' : 'Min' }}
+        </p>
+      </v-card-text>
+      <v-card-subtitle>
+        <p>
+          valid words: {{ game.availableWords().length }} ({{
+            game.availableWords().length < 50 ? game.availableWords().join(', ') : ''
+          }})
+        </p>
+      </v-card-subtitle>
+    </v-card>
     <p>{{ game.secretWord }}</p>
   </v-container>
 </template>
