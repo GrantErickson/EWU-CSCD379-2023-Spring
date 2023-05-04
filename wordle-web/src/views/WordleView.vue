@@ -1,6 +1,10 @@
 <template>
   <v-container>
-    <v-card-title class="text-h4 text-center"> Wordle Mind Bender </v-card-title>
+    <v-overlay :model-value="overlay" class="align-center justify-center">
+      <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
+    </v-overlay>
+
+    <div class="text-h4 text-center">Wordle Mind Bender</div>
 
     <GameBoard :game="game" @letterClick="addChar" />
 
@@ -8,7 +12,8 @@
 
     <GameKeyboard :guessedLetters="game.guessedLetters" @letterClick="addChar" />
 
-    <v-btn @click="checkGuess" @keyup.enter="checkGuess"> Check </v-btn>
+    <v-btn @click="checkGuess" @keyup.enter="checkGuess" class="ma-2"> Check </v-btn>
+    <v-btn @click="newGame" class="ma-2"> New Game </v-btn>
 
     <v-card class="my-5">
       <v-card-title
@@ -44,9 +49,32 @@ import GameBoard from '@/components/GameBoard.vue'
 import GameKeyboard from '@/components/GameKeyboard.vue'
 import { watch, onMounted, onUnmounted } from 'vue'
 import { Letter } from '@/scripts/letter'
+import Axios from 'axios'
+import { WordsService } from '@/scripts/wordsService'
 
 const guess = ref('')
 const game = reactive(new WordleGame())
+const overlay = ref(true)
+
+function newGame() {
+  overlay.value = true
+  Axios.get('/api/word')
+    .then((response) => {
+      setTimeout(() => {
+        console.log(response.data)
+        game.restartGame(response.data)
+        overlay.value = false
+        localStorage.setItem('secretWord', response.data)
+        console.log(localStorage.getItem('secretWord'))
+      }, 500)
+    })
+    .catch(() => {
+      game.restartGame(WordsService.getRandomWord())
+      overlay.value = false
+    })
+}
+
+newGame()
 
 console.log(game.secretWord)
 
