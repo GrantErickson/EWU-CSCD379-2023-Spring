@@ -78,3 +78,5 @@ app.MapControllers();
 
 app.Logger.Log(LogLevel.Information, "Starting App...");
 app.Run();
+
+public partial class Program { }
